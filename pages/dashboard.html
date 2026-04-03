@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quantity Measurement — Dashboard</title>
+  <link rel="stylesheet" href="../css/dashboard.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Raleway:wght@700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <!-- 🔥 ONLY CHANGE: INCREASED SIZE -->
+      <img src="../assets/icons/logo.png" width="34" alt="Logo"/>
+      <span class="nav-brand-text">Quantity Measurement</span>
+    </div>
+    <div class="nav-right">
+      <span id="userGreet" class="user-greet"></span>
+      <button class="logout-btn" onclick="logout()" type="button">Logout</button>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- Choose Type -->
+    <section class="section">
+      <p class="section-label">CHOOSE TYPE</p>
+      <div class="type-grid" id="typeGrid">
+
+        <div class="type-card" data-type="length" onclick="selectType(this)">
+          <div class="type-icon">
+            <img src="../assets/icons/length.png" alt="Length"/>
+          </div>
+          <span>Length</span>
+        </div>
+
+        <div class="type-card" data-type="weight" onclick="selectType(this)">
+          <div class="type-icon">
+            <img src="../assets/icons/weight.png" alt="Weight"/>
+          </div>
+          <span>Weight</span>
+        </div>
+
+        <div class="type-card" data-type="temperature" onclick="selectType(this)">
+          <div class="type-icon">
+            <img src="../assets/icons/temperature.png" alt="Temperature"/>
+          </div>
+          <span>Temperature</span>
+        </div>
+
+        <div class="type-card" data-type="volume" onclick="selectType(this)">
+          <div class="type-icon">
+            <img src="../assets/icons/volume.png" alt="Volume"/>
+          </div>
+          <span>Volume</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Choose Action -->
+    <section class="section">
+      <p class="section-label">CHOOSE ACTION</p>
+      <div class="action-tabs" id="actionTabs">
+        <button class="action-tab" data-action="comparison" onclick="selectAction(this)">Comparison</button>
+        <button class="action-tab" data-action="conversion" onclick="selectAction(this)">Conversion</button>
+        <button class="action-tab" data-action="arithmetic" onclick="selectAction(this)">Arithmetic</button>
+      </div>
+    </section>
+
+    <!-- Input Panel -->
+    <section class="section input-panel">
+      <div id="twoInputLayout">
+
+        <!-- FROM -->
+        <div class="input-group" id="fromGroup">
+          <p class="input-label" id="fromLabel">FROM</p>
+          <input type="number" id="fromVal" class="num-input" placeholder="Enter value" oninput="calculate()"/>
+          <select id="fromUnit" class="unit-select" onchange="syncUnits(); calculate()"></select>
+        </div>
+
+        <!-- ARROW -->
+        <div class="operator-box" id="operatorBox">
+          <div id="arrowOrOp">
+            <svg viewBox="0 0 40 20" width="40" fill="none">
+              <line x1="4" y1="10" x2="28" y2="10" stroke="#3b5bdb" stroke-width="2.5"/>
+              <polyline points="22,4 32,10 22,16" stroke="#3b5bdb" stroke-width="2.5"/>
+            </svg>
+          </div>
+          <div id="arithOps"></div>
+        </div>
+
+        <!-- TO -->
+        <div class="input-group" id="toGroup">
+          <p class="input-label" id="toLabel">TO</p>
+          <input type="number" id="toVal" class="num-input" placeholder="Enter value" oninput="calculate()"/>
+          <select id="toUnit" class="unit-select" onchange="calculate()"></select>
+        </div>
+
+      </div>
+
+      <!-- Result -->
+      <div class="result-box result-pop" id="resultBox">
+        <span id="resultText">Select type and values to begin</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- History Button -->
+  <button class="history-fab" id="historyFab" type="button" onclick="toggleHistoryPanel()">
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M12 8V12L15 14" stroke="currentColor" stroke-width="2"/>
+      <path d="M3 12A9 9 0 1 0 6 5.3" stroke="currentColor" stroke-width="2"/>
+      <path d="M3 4V8H7" stroke="currentColor" stroke-width="2"/>
+    </svg>
+  </button>
+
+  <!-- History Panel -->
+  <aside class="history-panel" id="historyPanel">
+    <div class="history-panel-header">
+      <div>
+        <p class="history-title">History</p>
+        <p class="history-subtitle">Recent calculations</p>
+      </div>
+      <button class="history-close" onclick="toggleHistoryPanel(false)">×</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+    <button class="history-clear" onclick="clearHistory()">Clear history</button>
+  </aside>
+
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "users": [
+    {
+      "name": "Aryan Borkar",
+      "email": "aryanborkar03@gmail.com",
+      "password": "Abc@1234",
+      "mobile": "8787877777",
+      "id": "M5LI9mkrB2g"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
