@@ -5,38 +5,58 @@ import History from './components/History';
 import Toast from './components/Toast';
 
 export default function App() {
-  const hasToken = !!localStorage.getItem('token');
-  const [view, setView] = useState('dashboard'); 
-  const [isAuthenticated, setIsAuthenticated] = useState(hasToken);
+  // Block rendering until we've checked the URL for OAuth2 callback params.
+  // This prevents a single-frame flash of the wrong view on the redirect.
+  const [ready, setReady] = useState(false);
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [view, setView] = useState('dashboard');
   const [toast, setToast] = useState({ show: false, msg: '', type: 'info' });
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
-    const name = params.get('name'); // Grab the real name from the URL
-    const error = params.get('error');
+    const token  = params.get('token');
+    const name   = params.get('name');
+    const error  = params.get('error');
 
     if (token) {
+      // ── OAuth2 success callback ────────────────────────────────────────────
+      // Backend redirected to http://localhost:5173/?token=xxx&name=John+Doe
       localStorage.setItem('token', token);
-      
-      // Use the real name from Google/GitHub, decode the spaces
-      if (name) {
-        localStorage.setItem('userName', decodeURIComponent(name));
-      }
-      
+      if (name) localStorage.setItem('userName', decodeURIComponent(name));
       setIsAuthenticated(true);
       setView('dashboard');
-      showToast('Successfully logged in!', 'success');
-      window.history.replaceState({}, document.title, "/");
+      // Clean the token out of the URL bar (security + UX)
+      window.history.replaceState({}, document.title, '/');
+      // Show toast after state is set (microtask delay avoids race)
+      setTimeout(() => showToast('Successfully logged in!', 'success'), 100);
+
     } else if (error) {
-      showToast('Social login failed.', 'error');
-      window.history.replaceState({}, document.title, "/");
+      // ── OAuth2 failure callback ────────────────────────────────────────────
+      const msg = decodeURIComponent(error) || 'Social login failed.';
+      window.history.replaceState({}, document.title, '/');
+      setTimeout(() => showToast(msg, 'error'), 100);
+      setView('auth');
+
+    } else {
+      // ── Normal page load — restore session from localStorage ──────────────
+      const storedToken = localStorage.getItem('token');
+      if (storedToken) {
+        setIsAuthenticated(true);
+      }
     }
+
+    setReady(true);
   }, []);
 
   const showToast = (msg, type = 'info') => {
     setToast({ show: true, msg, type });
-    setTimeout(() => setToast({ show: false, msg: '', type: 'info' }), 3000);
+    setTimeout(() => setToast({ show: false, msg: '', type: 'info' }), 3500);
+  };
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    setView('dashboard');
   };
 
   const handleLogout = () => {
@@ -47,15 +67,18 @@ export default function App() {
     showToast('Logged out successfully', 'info');
   };
 
+  // Block first render until URL params have been checked.
+  if (!ready) return null;
+
   return (
     <div className="min-h-screen text-gray-800 font-sans">
       {toast.show && <Toast msg={toast.msg} type={toast.type} />}
-      
+
       {view === 'auth' && (
-        <Auth 
-          onLogin={() => { setIsAuthenticated(true); setView('dashboard'); }} 
+        <Auth
+          onLogin={handleLogin}
           onBack={() => setView('dashboard')}
-          showToast={showToast} 
+          showToast={showToast}
         />
       )}
 
@@ -64,12 +87,12 @@ export default function App() {
       )}
 
       {view === 'dashboard' && (
-        <Dashboard 
+        <Dashboard
           isAuthenticated={isAuthenticated}
           onAuthClick={() => setView('auth')}
           onHistoryClick={() => setView('history')}
-          onLogout={handleLogout} 
-          showToast={showToast} 
+          onLogout={handleLogout}
+          showToast={showToast}
         />
       )}
     </div>
